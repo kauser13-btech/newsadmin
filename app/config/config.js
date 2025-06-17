@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://newsapi.test/api/';
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const availableCategories = [
     { id: 1, name: 'Technology', color: 'bg-blue-100 text-blue-800' },
