@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Edit, Filter,  Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Filter, Star, Trash2, Check } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { BASE_URL } from '@/app/config/config';
 import LeadNewsSort from '@/app/components/LeadNewsList/LeadNewsSort';
@@ -8,6 +8,8 @@ import SortableNewsList from '@/app/components/LeadNewsList/SortableNewsList';
 import Link from 'next/link';
 
 const NewsListView = () => {
+    const [tmp_lead_news, setTmpLeadnews] = useState(0);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState('top');
     const { news_categories, user, loading, isAuthenticated, handleLogout, router } = useAuth();
@@ -313,7 +315,10 @@ const NewsListView = () => {
                                         </button>
                                         {/* Make Lead News Button */}
                                         <button
-                                            onClick={() => handleMakeLeadNews(news.id)}
+                                            onClick={async () => {
+                                                setTmpLeadnews(news);
+                                                setShowConfirmModal(true);
+                                            }}
                                             className="bg-yellow-500 bg-opacity-90 hover:bg-opacity-100 text-white p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg"
                                             title="এটি লিড নিউজ করুন"
                                         >
@@ -413,6 +418,48 @@ const NewsListView = () => {
                         </div>
                     </div>
                 )}
+                {
+                    showConfirmModal && <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                    <Check className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">নিশ্চিত করুন</h3>
+                                    <p className="text-sm text-gray-600">এই সংবাদটি লিভ নিউজ করতে চান?</p>
+                                </div>
+                            </div>
+
+                            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                                <p className="text-sm text-gray-700 font-medium">
+                                    {tmp_lead_news.title}
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3 justify-end">
+                                <button
+                                    onClick={() => {
+                                        setShowConfirmModal(false);
+                                    }}
+                                    className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                                >
+                                    বাতিল
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        setShowConfirmModal(false);
+                                        await handleMakeLeadNews(tmp_lead_news.id);
+
+                                    }}
+                                    className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                >
+                                    কনফার্ম করুন
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <LeadNewsSort
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
