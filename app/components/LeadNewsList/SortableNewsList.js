@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { GripVertical, Calendar, Tag, X, Trash2, Save, Check } from 'lucide-react';
 import { BASE_URL } from '@/app/config/config';
 
-const SortableNewsList = ({ lead_news_id }) => {
-
+const SortableNewsList = ({  leadPosts, fetchLeadNews }) => {
+  // console.log('leadPosts', leadPosts);
   const [articles, setArticles] = useState([]);
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -13,7 +13,9 @@ const SortableNewsList = ({ lead_news_id }) => {
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-
+  useEffect(() => {
+    setArticles(leadPosts);
+  }, [leadPosts]);
   const deleteLeadNews = async (news_id) => {
     let url = `${BASE_URL}admin/posts/leadnews/remove`;
     const authtoken = localStorage.getItem('auth_token');
@@ -76,42 +78,7 @@ const SortableNewsList = ({ lead_news_id }) => {
     }
   };
 
-  const fetchLeadNews = async () => {
-    const token = localStorage.getItem('auth_token');
-    try {
-      let url = `${BASE_URL}admin/posts/leadnews`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch news data');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        setArticles(data.posts);
-        setHasChanges(false); // Reset changes flag when fetching fresh data
-      } else {
-        throw new Error('API returned unsuccessful response');
-      }
-    } catch (err) {
-      console.error('Error fetching news:', err);
-    } finally {
-    }
-  };
-
-  useEffect(() => {
-     (async function() {
-        await fetchLeadNews();
-    })();
-    
-  }, [lead_news_id]);
 
   const handleDragStart = (e, index) => {
     setDraggedItem(index);

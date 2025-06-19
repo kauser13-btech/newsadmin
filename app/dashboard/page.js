@@ -38,7 +38,7 @@ export default function Dashboard() {
   if (!isAuthenticated || !user) {
     return null; // Will redirect in useEffect
   }
-  console.log('process.env.BASE_URL', process.env.NEXT_PUBLIC_API_URL);
+  // console.log('process.env.BASE_URL', process.env.NEXT_PUBLIC_API_URL);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}

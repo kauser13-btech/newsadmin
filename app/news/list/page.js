@@ -8,6 +8,7 @@ import SortableNewsList from '@/app/components/LeadNewsList/SortableNewsList';
 import Link from 'next/link';
 
 const NewsListView = () => {
+    const [articles, setArticles] = useState([]);
     const [tmp_lead_news, setTmpLeadnews] = useState(0);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +27,35 @@ const NewsListView = () => {
     const [totalNews, setTotalNews] = useState(0);
 
     const [lead_news_id, setLeadNewsId] = useState(null);
+
+    const fetchLeadNews = async () => {
+        const token = localStorage.getItem('auth_token');
+        try {
+          let url = `${BASE_URL}admin/posts/leadnews`;
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          });
+    
+          if (!response.ok) {
+            throw new Error('Failed to fetch news data');
+          }
+    
+          const data = await response.json();
+          if (data.success) {
+            setArticles(data.posts);
+          } else {
+            throw new Error('API returned unsuccessful response');
+          }
+        } catch (err) {
+          console.error('Error fetching news:', err);
+        } finally {
+        }
+      };
 
     const PostToLeadNews = async (news_id) => {
         let url = `${BASE_URL}admin/posts/leadnews`;
@@ -119,6 +149,7 @@ const NewsListView = () => {
     const handleMakeLeadNews = async (newsId) => {
         setLeadNewsId(newsId);
         await PostToLeadNews(newsId);
+        await fetchLeadNews();
         setIsOpen(true);
 
     };
@@ -460,17 +491,15 @@ const NewsListView = () => {
                         </div>
                     </div>
                 }
-
-
+                
+             
                 <LeadNewsSort
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     position={position}
                     width="w-80">
-                    {
-                        lead_news_id && <SortableNewsList lead_news_id={lead_news_id} />
-                    }
-
+                    
+                    <SortableNewsList fetchLeadNews={fetchLeadNews} lead_news_id={lead_news_id} leadPosts={articles}/>
                 </LeadNewsSort>
             </main>
         </div>
