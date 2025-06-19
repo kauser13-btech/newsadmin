@@ -112,7 +112,7 @@ const CategoryCRUD = () => {
             name: formData.name,
             position: formData.position,
             parent_id: formData.parent_id
-        }; Ï
+        };
         await fetch(`${BASE_URL}admin/categories`, {
             method: 'POST',
             headers: {
