@@ -107,7 +107,10 @@ const SortableNewsList = ({ lead_news_id }) => {
   };
 
   useEffect(() => {
-    fetchLeadNews();
+     (async function() {
+        await fetchLeadNews();
+    })();
+    
   }, [lead_news_id]);
 
   const handleDragStart = (e, index) => {
@@ -193,7 +196,7 @@ const SortableNewsList = ({ lead_news_id }) => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
-    
+
       {saveSuccess && (
         <div className="fixed bottom-6 right-6 z-50">
           <div className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
@@ -209,7 +212,9 @@ const SortableNewsList = ({ lead_news_id }) => {
 
           {/* Save Button */}
           <button
-            onClick={saveOrder}
+            onClick={async () => {
+              await saveOrder();
+            }}
             disabled={!hasChanges || isSaving}
             className={`
               flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200

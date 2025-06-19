@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Edit, Filter, Star, Trash2, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Filter, Star, Check } from 'lucide-react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { BASE_URL } from '@/app/config/config';
 import LeadNewsSort from '@/app/components/LeadNewsList/LeadNewsSort';
@@ -460,12 +460,17 @@ const NewsListView = () => {
                         </div>
                     </div>
                 }
+
+
                 <LeadNewsSort
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     position={position}
                     width="w-80">
-                    <SortableNewsList lead_news_id={lead_news_id} />
+                    {
+                        lead_news_id && <SortableNewsList lead_news_id={lead_news_id} />
+                    }
+
                 </LeadNewsSort>
             </main>
         </div>
