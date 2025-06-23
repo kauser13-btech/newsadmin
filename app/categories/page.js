@@ -13,6 +13,7 @@ const CategoryCRUD = () => {
     const [editingCategory, setEditingCategory] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
+        slug: '',
         parent_id: 0,
         position: 1,
         active: true
@@ -110,6 +111,7 @@ const CategoryCRUD = () => {
         const cat = {
             ...(editingCategory && { id: editingCategory.id }),
             name: formData.name,
+            slug: formData.slug,
             position: formData.position,
             parent_id: formData.parent_id
         };
@@ -238,7 +240,7 @@ const CategoryCRUD = () => {
                                         />
                                     </div>
 
-                                    {/* <div>
+                                    <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Slug
                                         </label>
@@ -250,7 +252,7 @@ const CategoryCRUD = () => {
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             required
                                         />
-                                    </div> */}
+                                    </div> 
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
