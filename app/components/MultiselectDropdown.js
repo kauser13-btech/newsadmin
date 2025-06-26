@@ -3,7 +3,7 @@ import { Filter, ChevronDown, X, Search } from 'lucide-react';
 
 
 
-const MultiselectDropdown = ({ news_categories, resetDropSelected, handleCategoryChange, totalNews = 0, preselected }) => {
+const MultiselectDropdown = ({ news_categories, resetDropSelected, handleCategoryChange, totalNews = 0, preselected=[] }) => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
