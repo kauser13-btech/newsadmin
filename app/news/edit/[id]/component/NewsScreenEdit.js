@@ -1,12 +1,13 @@
 "use client";
 import { useCallback, useEffect, useState } from 'react';
-import { Save, Eye, Trash2, Plus,X } from 'lucide-react';
+import { Save, Eye, Trash2, Plus, X } from 'lucide-react';
 import WysiwygEditor from '@/app/components/Editor/WysiwygEditor';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { available_colors, BASE_URL } from '@/app/config/config';
 import { FeatureImageUploader } from '@/app/components/Editor/FeatureUploader';
 import { Notification } from '@/app/components/Notification/Notification';
 import Link from 'next/link';
+import MultiselectDropdown from '@/app/components/MultiselectDropdown';
 
 
 export const NewsScreenEdit = ({ post_id, router }) => {
@@ -117,12 +118,10 @@ export const NewsScreenEdit = ({ post_id, router }) => {
     const [imagePreview, setImagePreview] = useState('');
     const [isPreview, setIsPreview] = useState(false);
 
-    const handleCategoryToggle = (categoryId) => {
+    const handleCategoryToggle = (categoryIds) => {
         setFormData(prev => ({
             ...prev,
-            categories: prev.categories.includes(categoryId)
-                ? prev.categories.filter(id => id !== categoryId)
-                : [...prev.categories, categoryId]
+            categories: categoryIds.map(cat => cat.id)
         }));
     };
 
@@ -373,45 +372,19 @@ export const NewsScreenEdit = ({ post_id, router }) => {
 
                                 {/* Categories */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                                        Categories *
-                                    </label>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                                        {all_cat.map((category) => (
-                                            <button
-                                                key={category.id}
-                                                type="button"
-                                                onClick={() => handleCategoryToggle(category.id)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2 ${formData.categories.includes(category.id)
-                                                    ? `${category.color} border-current shadow-md transform scale-105`
-                                                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                                                    }`}
-                                            >
-                                                {category.name}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <p className="mt-2 text-xs text-gray-500">
+                                    <label className="block">
                                         Select one or more categories for your article
-                                    </p>
-                                    {formData.categories.length > 0 && (
-                                        <div className="mt-3">
-                                            <p className="text-sm text-gray-600 mb-2">Selected categories:</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {formData.categories.map(categoryId => {
-                                                    const category = all_cat.find(cat => cat.id === categoryId);
-                                                    return category ? (
-                                                        <span
-                                                            key={categoryId}
-                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${category.color}`}
-                                                        >
-                                                            {category.name}
-                                                        </span>
-                                                    ) : null;
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
+                                    </label>
+                                    <MultiselectDropdown
+                                        preselected={formData.categories}
+                                        resetDropSelected={handleCategoryToggle}
+                                        news_categories={all_cat}
+                                        handleCategoryChange={handleCategoryToggle}
+                                        totalNews={0}
+                                    />
+
+
+
                                 </div>
 
                                 <div>

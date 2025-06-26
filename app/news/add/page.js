@@ -7,6 +7,7 @@ import { available_colors } from '@/app/config/config';
 import { FeatureImageUploader } from '@/app/components/Editor/FeatureUploader';
 import { Notification } from '@/app/components/Notification/Notification';
 import Link from 'next/link';
+import MultiselectDropdown from '@/app/components/MultiselectDropdown';
 
 export default function NewsScreen() {
   const [notification, setNotification] = useState(null);
@@ -18,7 +19,7 @@ export default function NewsScreen() {
     categories: [],
     tags: [] // Added tags array
   });
-  
+
   // Tag-related state
   const [tagInput, setTagInput] = useState('');
   const [availableTags, setAvailableTags] = useState([
@@ -44,12 +45,10 @@ export default function NewsScreen() {
   const [imagePreview, setImagePreview] = useState('');
   const [isPreview, setIsPreview] = useState(false);
 
-  const handleCategoryToggle = (categoryId) => {
+  const handleCategoryToggle = (categoryIds) => {
     setFormData(prev => ({
       ...prev,
-      categories: prev.categories.includes(categoryId)
-        ? prev.categories.filter(id => id !== categoryId)
-        : [...prev.categories, categoryId]
+      categories: categoryIds
     }));
   };
 
@@ -176,7 +175,7 @@ export default function NewsScreen() {
             className="w-full h-64 object-cover rounded-lg mb-6"
           />
         )}
-        
+
         {/* Categories */}
         {formData.categories.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -197,7 +196,7 @@ export default function NewsScreen() {
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
           {formData.title || 'Article Title'}
         </h1>
-        
+
         <p className="text-xl text-gray-600 mb-6 leading-relaxed">
           {formData.excerpt || 'Article excerpt will appear here...'}
         </p>
@@ -217,7 +216,7 @@ export default function NewsScreen() {
             </div>
           </div>
         )}
-        
+
         <div
           className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
           dangerouslySetInnerHTML={{
@@ -314,24 +313,17 @@ export default function NewsScreen() {
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Categories *
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                    {all_cat.map((category) => (
-                      <button
-                        key={category.id}
-                        type="button"
-                        onClick={() => handleCategoryToggle(category.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border-2 ${formData.categories.includes(category.id)
-                          ? `${category.color} border-current shadow-md transform scale-105`
-                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                          }`}
-                      >
-                        {category.name}
-                      </button>
-                    ))}
+                  <div className="block">
+                    <MultiselectDropdown
+
+                      resetDropSelected={handleCategoryToggle}
+                      news_categories={all_cat}
+                      handleCategoryChange={handleCategoryToggle}
+                      totalNews={0}
+                    />
+                    
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">
-                    Select one or more categories for your article
-                  </p>
+                  
                   {formData.categories.length > 0 && (
                     <div className="mt-3">
                       <p className="text-sm text-gray-600 mb-2">Selected categories:</p>
@@ -357,7 +349,7 @@ export default function NewsScreen() {
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Tags
                   </label>
-                  
+
                   {/* Tag Input */}
                   <div className="flex gap-2 mb-4">
                     <input
@@ -417,7 +409,7 @@ export default function NewsScreen() {
                       </div>
                     </div>
                   )}
-                  
+
                   <p className="mt-2 text-xs text-gray-500">
                     Tags help categorize and make your content more discoverable. Press Enter or comma to add multiple tags.
                   </p>

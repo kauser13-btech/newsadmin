@@ -10,7 +10,7 @@ const SortableNewsList = ({  leadPosts, fetchLeadNews }) => {
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [sortedOrder, setSortedOrder] = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [hasChanges, setHasChanges] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   useEffect(() => {

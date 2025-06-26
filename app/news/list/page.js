@@ -6,10 +6,11 @@ import { BASE_URL } from '@/app/config/config';
 import LeadNewsSort from '@/app/components/LeadNewsList/LeadNewsSort';
 import SortableNewsList from '@/app/components/LeadNewsList/SortableNewsList';
 import Link from 'next/link';
+import MultiselectDropdown from '@/app/components/MultiselectDropdown';
 
 const NewsListView = () => {
     const [articles, setArticles] = useState([]);
-    const [tmp_lead_news, setTmpLeadnews] = useState(0);
+    const [tmp_lead_news, setTmpLeadnews] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState('top');
@@ -22,7 +23,7 @@ const NewsListView = () => {
 
     // Pagination and filtering state
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedCategory, setSelectedCategory] = useState({ id: -1, name: 'সব' });
+    const [selectedCategory, setSelectedCategory] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalNews, setTotalNews] = useState(0);
 
@@ -31,58 +32,42 @@ const NewsListView = () => {
     const fetchLeadNews = async () => {
         const token = localStorage.getItem('auth_token');
         try {
-          let url = `${BASE_URL}admin/posts/leadnews`;
-          const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            },
-          });
-    
-          if (!response.ok) {
-            throw new Error('Failed to fetch news data');
-          }
-    
-          const data = await response.json();
-          if (data.success) {
-            setArticles(data.posts);
-          } else {
-            throw new Error('API returned unsuccessful response');
-          }
-        } catch (err) {
-          console.error('Error fetching news:', err);
-        } finally {
-        }
-      };
-
-    const PostToLeadNews = async (news_id) => {
-        let url = `${BASE_URL}admin/posts/leadnews`;
-        const authtoken = localStorage.getItem('auth_token');
-        try {
-            const rep = await fetch(url, {
-                method: 'POST',
+            let url = `${BASE_URL}admin/posts/leadnews`;
+            const response = await fetch(url, {
+                method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${authtoken}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ news_id: news_id })
             });
-            console.log('rep', rep);
-        } catch (e) {
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch news data');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                setArticles(data.posts);
+            } else {
+                throw new Error('API returned unsuccessful response');
+            }
+        } catch (err) {
+            console.error('Error fetching news:', err);
+        } finally {
         }
-    }
+    };
+
+
 
     // Fetch news data
-    const fetchNews = async (page = 1, category = null) => {
+    const fetchNews = async (page = 1) => {
         const token = localStorage.getItem('auth_token');
         setIsLoadingNews(true);
         try {
-
+            const ids = selectedCategory.map(c => c.id).join(',');
             // Build API URL with pagination and category filter
-            let url = (category?.id && category.id === -1) ? `${BASE_URL}admin/posts/allposts?page=${page}` : `${BASE_URL}admin/posts/category/${category.id}?page=${page}`;
+            let url = selectedCategory.length === 0 ? `${BASE_URL}admin/posts/allposts?page=${page}` : `${BASE_URL}admin/posts/categories/${ids}?page=${page}`;
 
 
             const response = await fetch(url, {
@@ -105,6 +90,7 @@ const NewsListView = () => {
                 setTotalPages(data.pagination.last_page);
                 setTotalNews(data.pagination.total);
                 setError(null);
+                await fetchLeadNews();
             } else {
                 throw new Error('API returned unsuccessful response');
             }
@@ -119,21 +105,21 @@ const NewsListView = () => {
     // Initial data fetch
     useEffect(() => {
         if (isAuthenticated && news_categories.length > 0) {
-            fetchNews(1, selectedCategory);
+            fetchNews(1);
         }
-    }, [isAuthenticated, news_categories]);
+    }, [isAuthenticated, news_categories, selectedCategory]);
 
     // Handle category change
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
         setCurrentPage(1);
-        fetchNews(1, category);
+        fetchNews(1);
     };
 
     // Handle page change
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        fetchNews(page, selectedCategory);
+        fetchNews(page);
     };
 
     // Handle edit button click
@@ -148,7 +134,7 @@ const NewsListView = () => {
     // Handle make lead news button click
     const handleMakeLeadNews = async (newsId) => {
         setLeadNewsId(newsId);
-        await PostToLeadNews(newsId);
+        // await PostToLeadNews(newsId);
         await fetchLeadNews();
         setIsOpen(true);
 
@@ -238,39 +224,15 @@ const NewsListView = () => {
                 </div>
 
                 {/* Category Filter */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Filter className="h-5 w-5 text-gray-600" />
-                        <h2 className="text-lg font-semibold text-gray-900">বিভাগ অনুযায়ী ফিল্টার</h2>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {/* All categories button */}
-                        <button
-                            onClick={() => handleCategoryChange({ id: -1, name: 'সব' })}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${selectedCategory === 'সব'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                        >
-                            সব
-                        </button>
-                        {news_categories.map((category) => (
-                            <button
-                                key={category.id}
-                                onClick={() => handleCategoryChange(category)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${selectedCategory.id === category.id
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                            >
-                                {category.name}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="mt-3 text-sm text-gray-600">
-                        মোট {totalNews} টি সংবাদ
-                    </div>
-                </div>
+
+                <MultiselectDropdown
+                    resetDropSelected={setSelectedCategory}
+                    news_categories={news_categories}
+                    handleCategoryChange={handleCategoryChange}
+                    totalNews={totalNews}
+                />
+
+                
 
                 {/* Error Message */}
                 {error && (
@@ -279,7 +241,7 @@ const NewsListView = () => {
                             <strong>ত্রুটি:</strong> {error}
                         </div>
                         <button
-                            onClick={() => fetchNews(currentPage, selectedCategory)}
+                            onClick={() => fetchNews(currentPage)}
                             className="mt-2 text-red-600 hover:text-red-800 text-sm font-medium"
                         >
                             পুনরায় চেষ্টা করুন
@@ -303,7 +265,7 @@ const NewsListView = () => {
                         </div>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">কোন সংবাদ পাওয়া যায়নি</h3>
                         <p className="text-gray-600">
-                            {selectedCategory.name === 'সব'
+                            {selectedCategory.length === 0
                                 ? 'কোন সংবাদ নেই।'
                                 : `"${selectedCategory.name}" বিভাগে কোন সংবাদ নেই।`
                             }
@@ -345,16 +307,19 @@ const NewsListView = () => {
                                             <Edit className="h-4 w-4" />
                                         </button>
                                         {/* Make Lead News Button */}
-                                        <button
-                                            onClick={async () => {
-                                                setTmpLeadnews(news);
-                                                setShowConfirmModal(true);
-                                            }}
-                                            className="bg-yellow-500 bg-opacity-90 hover:bg-opacity-100 text-white p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg"
-                                            title="এটি লিড নিউজ করুন"
-                                        >
-                                            <Star className="h-4 w-4" />
-                                        </button>
+                                        {
+                                            !articles.some(article => article.id === news.id) && <button
+                                                onClick={async () => {
+                                                    setTmpLeadnews(news);
+                                                    setShowConfirmModal(true);
+                                                }}
+                                                className="bg-yellow-500 bg-opacity-90 hover:bg-opacity-100 text-white p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg"
+                                                title="এটি লিড নিউজ করুন"
+                                            >
+                                                <Star className="h-4 w-4" />
+                                            </button>
+                                        }
+
                                     </div>
                                 </div>
 
@@ -491,15 +456,19 @@ const NewsListView = () => {
                         </div>
                     </div>
                 }
-                
-             
+
+
                 <LeadNewsSort
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}
                     position={position}
                     width="w-80">
-                    
-                    <SortableNewsList fetchLeadNews={fetchLeadNews} lead_news_id={lead_news_id} leadPosts={articles}/>
+
+                    <SortableNewsList
+                        fetchLeadNews={fetchLeadNews}
+                        lead_news_id={lead_news_id}
+                        leadPosts={tmp_lead_news ? [tmp_lead_news, ...articles] : articles}
+                    />
                 </LeadNewsSort>
             </main>
         </div>
