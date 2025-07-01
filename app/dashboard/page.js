@@ -23,8 +23,15 @@ export default function Dashboard() {
     router.push('/profile/update');
   };
 
+  const mangeMenus = () => {
+    router.push('/profile/update');
+  };
+
   const navigateCategories = () => {
     router.push('/categories');
+  };
+  const navigateMenus = () => {
+    router.push('/menus');
   };
 
   if (loading) {
@@ -125,6 +132,10 @@ export default function Dashboard() {
                   </button> */}
                   <button onClick={updateProfile} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium">
                     Change Password
+                  </button>
+
+                  <button onClick={navigateMenus} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    Menus
                   </button>
                 </div>
               </div>

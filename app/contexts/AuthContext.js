@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             if (token) {
-                const resp =  await fetch(`${BASE_URL}admin/posts/store`, {
+                const resp = await fetch(`${BASE_URL}admin/posts/store`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -206,6 +206,49 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
+
+    const saveMenu = async (data) => {
+
+        const token = localStorage.getItem('auth_token');
+
+        try {
+            if (token) {
+                const resp = await fetch(`${BASE_URL}admin/menus/store`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                return resp.json();
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+        }
+    };
+
+
+    const fetchMenu = async () => {
+        const token = localStorage.getItem('auth_token');
+        try {
+            const response = await fetch(`${BASE_URL}home/menu-items`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                }
+            });
+            return response.json();
+        } catch (error) {
+            console.error('Fetch menu error:', error);
+
+        }
+    };
+
+
     const value = {
         user,
         loading,
@@ -221,6 +264,8 @@ export const AuthProvider = ({ children }) => {
         fetcCategories,
         news_categories: data?.data ? data?.data : [],
         savePost,
+        saveMenu,
+        fetchMenu,
     };
 
     return (
